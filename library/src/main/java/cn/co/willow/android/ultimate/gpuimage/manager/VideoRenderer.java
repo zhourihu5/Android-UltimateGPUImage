@@ -148,7 +148,7 @@ public class VideoRenderer implements Renderer, PreviewCallback {
             runOnDraw(new Runnable() {
                 @Override
                 public void run() {
-                    GPUImageNativeLibrary.YUVtoRBGA(
+                    GPUImageNativeLibrary.YUVtoRBGA(//todo 魅族手机的预览和输出方向相差180度，不知道是否是这里的问题
                             data,
                             previewSize.width,
                             previewSize.height,

@@ -18,6 +18,7 @@ package cn.co.willow.android.ultimate.gpuimage.utils;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
@@ -25,6 +26,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.support.annotation.RequiresPermission;
+import android.view.Surface;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -338,5 +340,37 @@ public class CameraUtil {
         }
         return null;
     }
+    public static int getCameraDisplayOrientation(final Activity activity, final int cameraId) {
+        int rotation = activity.getWindowManager().getDefaultDisplay()
+                .getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
 
+        int result;
+        Camera.CameraInfo info =  getCameraInfo(cameraId);
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+        } else { // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        return result;
+    }
+    public static Camera.CameraInfo getCameraInfo(final int cameraId) {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        return info;
+    }
 }

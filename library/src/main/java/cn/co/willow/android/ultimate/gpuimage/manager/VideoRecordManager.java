@@ -1,6 +1,7 @@
 package cn.co.willow.android.ultimate.gpuimage.manager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -98,7 +99,7 @@ public class VideoRecordManager implements VideoRecordConstrain, VideoRecordMana
         mRecorderView.getHolder().setFixedSize(optimalSize.height, optimalSize.width);
 
         // 4.关联渲染器  bond filter-manager
-        mFilteManager.setUpCamera(mCamera, isFrontCame);
+        mFilteManager.setUpCamera(mCamera, isFrontCame, (Activity) mRecorderView.getContext());
         mFilteManager.setOnSurfaceSetListener(new VideoRenderer.OnSurfaceSetListener() {
             @Override
             public void onSurfaceSet(SurfaceTexture mSurfaceTexture) {

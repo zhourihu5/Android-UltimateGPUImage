@@ -1,5 +1,6 @@
 package cn.co.willow.android.ultimate.gpuimage.manager;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
@@ -9,6 +10,7 @@ import android.media.CamcorderProfile;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 
 import java.io.File;
 
@@ -16,6 +18,8 @@ import cn.co.willow.android.ultimate.gpuimage.core_config.RecordCoderState;
 import cn.co.willow.android.ultimate.gpuimage.core_config.Rotation;
 import cn.co.willow.android.ultimate.gpuimage.core_record_18.VideoRecorderRenderer;
 import cn.co.willow.android.ultimate.gpuimage.core_render_filter.GPUImageFilter;
+import cn.co.willow.android.ultimate.gpuimage.utils.CameraUtil;
+import cn.co.willow.android.ultimate.gpuimage.utils.LogUtil;
 
 /**
  * 视频录制滤镜管理器
@@ -57,11 +61,32 @@ public class VideoFilterManager {
     }
 
     /** 设置相机，并切换角度 */
-    public void setUpCamera(final Camera camera, boolean isFrontCame) {
+    public void setUpCamera(final Camera camera, boolean isFrontCame,Activity context) {
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            camera.setDisplayOrientation(0);//todo added by zhourihu 2017年3月31日14:25:14 这块判断逻辑有问题 google手机会倒置 魅族手机会预览和录制方向相反
             mRenderer.setUpSurfaceTexture(camera);
-            mRenderer.setRotation(isFrontCame ? Rotation.ROTATION_270 : Rotation.ROTATION_90, false, isFrontCame);
+           int mCurrentCameraId=isFrontCame?1:0;
+            int orientation = CameraUtil.getCameraDisplayOrientation(
+                    context, mCurrentCameraId);
+//            mCameraInstance.setDisplayOrientation(orientation); todo 魅族手机录制结果和预览结果方向差180度
+
+            Rotation rotation = Rotation.NORMAL;
+            switch (orientation) {
+                case 90:
+                    rotation = Rotation.ROTATION_90;
+                    break;
+                case 180:
+                    rotation = Rotation.ROTATION_180;
+                    break;
+                case 270:
+                    rotation = Rotation.ROTATION_270;
+                    break;
+            }
+            Log.e("rotation",String.format("orientation==%s,isFrontCame==%s",orientation,isFrontCame));
+            mRenderer.setRotation(rotation,false, isFrontCame);
+
+//            mRenderer.setRotation(isFrontCame ? Rotation.ROTATION_270 : Rotation.ROTATION_90, false, isFrontCame);
         } else {
             camera.setPreviewCallback(mRenderer);
             camera.startPreview();
